@@ -1,7 +1,7 @@
 use druid::Data;
 use serde::{Deserialize, Serialize};
 
-use crate::guid::GUID;
+use super::guid::GUID;
 
 #[derive(Debug, Deserialize, Serialize, Data, Clone)]
 pub struct Budget {

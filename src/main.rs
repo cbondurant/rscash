@@ -1,22 +1,11 @@
-use account::Account;
-use book::Book;
+use data::{account::Account, book::Book, gnc_v2::GCNv2};
 use druid::{
 	widget::{Label, List, Scroll},
 	AppLauncher, Env, Widget, WidgetExt, WindowDesc,
 };
 use libflate::gzip::Decoder;
 use std::fs::File;
-mod account;
-mod book;
-mod budget;
-mod commodity;
-mod currency;
-mod date;
-mod gnc_v2;
-mod guid;
-mod price;
-mod split;
-mod transaction;
+mod data;
 
 fn build_app() -> impl Widget<Book> {
 	Scroll::new(
@@ -29,7 +18,7 @@ fn main() {
 	let source = File::open("test.gnucash").unwrap();
 	let reader = Decoder::new(source).unwrap();
 
-	let deserialized: gnc_v2::GCNv2 = match serde_xml_rs::from_reader(reader) {
+	let deserialized: GCNv2 = match serde_xml_rs::from_reader(reader) {
 		Ok(val) => val,
 		Err(e) => {
 			println!("{e:?}");

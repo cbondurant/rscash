@@ -1,7 +1,7 @@
 use druid::Data;
 use serde::{Deserialize, Serialize};
 
-use crate::{commodity::Commodity, guid::GUID};
+use super::{commodity::Commodity, guid::GUID};
 
 #[derive(Debug, Deserialize, Serialize, Data, Clone, PartialEq, Eq)]
 #[serde(rename_all = "UPPERCASE")]

@@ -1,7 +1,7 @@
 use druid::Data;
 use serde::{Deserialize, Serialize};
 
-use crate::{currency::Quantity, date::Date, guid::GUID};
+use super::{currency::Quantity, date::Date, guid::GUID};
 
 /// The current state of the split
 /// if reconsiled, includes the time that was applied.

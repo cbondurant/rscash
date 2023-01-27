@@ -1,4 +1,4 @@
-use crate::book::Book;
+use super::book::Book;
 use serde::{Deserialize, Serialize};
 
 use druid::im::Vector;

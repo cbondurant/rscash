@@ -2,10 +2,7 @@ use druid::im::Vector;
 use druid::Data;
 use serde::{Deserialize, Serialize};
 
-use crate::commodity::Commodity;
-use crate::date::Date;
-use crate::guid::GUID;
-use crate::split::Split;
+use super::{commodity::Commodity, date::Date, guid::GUID, split::Split};
 
 #[derive(Debug, Deserialize, Serialize, Data, Clone)]
 pub struct Splits {
