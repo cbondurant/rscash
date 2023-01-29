@@ -1,4 +1,4 @@
-use druid::Data;
+use druid::{Data, Lens};
 use serde::{Deserialize, Serialize};
 
 use super::{commodity::Commodity, guid::GUID};
@@ -18,13 +18,14 @@ pub enum AccountType {
 	Equity,
 }
 
-#[derive(Debug, Deserialize, Serialize, Data, Clone)]
+#[derive(Debug, Deserialize, Serialize, Data, Clone, Lens)]
 pub struct Account {
 	pub name: String,
-	id: GUID,
+	pub id: GUID,
 	#[serde(rename = "type")]
-	kind: AccountType,
+	pub kind: AccountType,
 	commodity: Commodity,
-	parent_id: Option<GUID>,
-	description: Option<String>,
+	#[serde(rename = "parent")]
+	pub parent_id: Option<GUID>,
+	pub description: Option<String>,
 }
