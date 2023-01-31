@@ -9,6 +9,6 @@ edition = "2021"
 chrono = {version = "0.4.23", features = ["serde"]}
 druid = {version = "0.8.2", features = ["serde"]}
 libflate = "1.2.0"
-serde = {version = "1.0.152", features = ["serde_derive"]}
+serde = {version = "1.0.152", features = ["serde_derive", "rc"]}
 serde-xml-rs = "0.6.0"
 serde_json = "1.0.91"

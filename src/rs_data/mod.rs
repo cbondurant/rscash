@@ -1,3 +1,3 @@
 pub mod account;
 pub mod book;
-pub mod split;
+pub mod page;

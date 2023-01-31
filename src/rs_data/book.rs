@@ -1,14 +1,38 @@
-use std::cell::RefCell;
-
-use druid::{Data, Lens};
+use druid::{
+	im::{HashMap, Vector},
+	Data, Lens,
+};
 use serde::{Deserialize, Serialize};
 
-use super::account::Account;
+use super::{account::Account, page::Page};
 use crate::gnu_data::{book::Book as GnuBook, guid::GUID};
 
 #[derive(Debug, Deserialize, Serialize, Clone, Data, Lens)]
 pub struct Book {
+	pub id: GUID,
 	pub root_account: Account,
+	pub account_paths: HashMap<GUID, Vector<GUID>>,
+	pub pages: Vector<Page>,
+}
+
+impl Book {
+	pub fn get_account_name_path(&self, account: &GUID) -> String {
+		let mut path = String::new();
+		let mut node = &self.root_account;
+
+		let mut account_path = self.account_paths.get(account).unwrap().clone();
+		account_path.push_back(*account);
+		account_path.pop_front();
+
+		for node_id in account_path {
+			node = node.get_child(node_id).unwrap();
+			path.push_str(node.name.as_str());
+			path.push(':')
+		}
+
+		path.pop();
+		path
+	}
 }
 
 impl From<GnuBook> for Book {
@@ -21,8 +45,6 @@ impl From<GnuBook> for Book {
 			}
 			account_list.push((account.id, address_chain, account.into()));
 		}
-
-		println!("{:#?}", account_list);
 
 		fn get_path(
 			account_list: &Vec<(GUID, Vec<GUID>, Account)>,
@@ -52,12 +74,14 @@ impl From<GnuBook> for Book {
 
 		path_account_list.sort_by(|a, b| a.1.len().cmp(&b.1.len()));
 
-		println!("{:#?}", path_account_list);
+		let mut paths = HashMap::new();
 
 		// Iterate until we get to the root node
 		while path_account_list.len() != 1 {
-			let child = path_account_list.pop().unwrap();
+			let mut child = path_account_list.pop().unwrap();
 			let parent_id = child.1[0];
+			child.1.reverse();
+			paths.entry(child.0).or_insert(child.1.into());
 			path_account_list
 				.iter_mut()
 				.rev()
@@ -69,7 +93,10 @@ impl From<GnuBook> for Book {
 		}
 
 		Book {
+			id: value.id,
 			root_account: path_account_list.pop().unwrap().2,
+			account_paths: paths,
+			pages: Vector::new(),
 		}
 	}
 }

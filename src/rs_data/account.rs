@@ -1,7 +1,10 @@
 use druid::{im::Vector, Data, Lens};
 use serde::{Deserialize, Serialize};
 
-use crate::gnu_data::account::{Account as GnuAccount, AccountType as GnuAccountType};
+use crate::gnu_data::{
+	account::{Account as GnuAccount, AccountType as GnuAccountType},
+	guid::GUID,
+};
 
 #[derive(Debug, Deserialize, Serialize, Data, Clone, PartialEq, Eq)]
 pub enum AccountType {
@@ -20,21 +23,28 @@ pub enum AccountType {
 #[derive(Data, Debug, Serialize, Deserialize, Clone, Lens)]
 pub struct Account {
 	pub name: String,
+	pub id: GUID,
 	pub category: AccountType,
-	// commodity: Commodity,
 	description: Option<String>,
 	pub children: Vector<Account>,
-	pub splits: Vector<Split>,
+	pub children_hidden: bool,
+}
+
+impl Account {
+	pub fn get_child(&self, id: GUID) -> Option<&Account> {
+		self.children.iter().find(|account| account.id == id)
+	}
 }
 
 impl From<GnuAccount> for Account {
 	fn from(value: GnuAccount) -> Self {
 		Self {
 			name: value.name,
+			id: value.id,
 			category: value.kind.into(),
 			description: value.description,
 			children: Vector::new(),
-			splits: Vector::new(),
+			children_hidden: false,
 		}
 	}
 }
