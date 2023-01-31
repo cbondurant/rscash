@@ -1,41 +1,12 @@
-use druid::{
-	widget::{Controller, Tabs},
-	AppLauncher, Command, Event, Key, Selector, Widget, WidgetExt, WindowDesc,
-};
-use gnu_data::{gnc_v2::GCNv2, guid::GUID};
+use druid::{widget::Tabs, AppLauncher, Widget, WidgetExt, WindowDesc};
+use gnu_data::gnc_v2::GCNv2;
 use libflate::gzip::Decoder;
-use rs_data::{
-	book::Book,
-	page::{Page, TransactionFilter},
-};
+use rs_data::book::Book;
 use std::{fs::File, io::Write};
-use widgets::book_tabs::BookTabPolicy;
+use widgets::book_tabs::{BookTabPolicy, TabsController};
 mod gnu_data;
 mod rs_data;
 mod widgets;
-
-struct TabsController;
-impl Controller<Book, Tabs<BookTabPolicy>> for TabsController {
-	fn event(
-		&mut self,
-		child: &mut Tabs<BookTabPolicy>,
-		ctx: &mut druid::EventCtx,
-		event: &druid::Event,
-		data: &mut Book,
-		env: &druid::Env,
-	) {
-		match event {
-			Event::Command(command) => match command.get(Selector::<GUID>::new("OpenAccount")) {
-				Some(guid) => data.pages.push_back(Page::Transactions {
-					filter: TransactionFilter::Account(*guid),
-				}),
-				None => (),
-			},
-			_ => (),
-		}
-		child.event(ctx, event, data, env)
-	}
-}
 
 fn build_app() -> impl Widget<Book> {
 	Tabs::for_policy(BookTabPolicy).controller(TabsController)

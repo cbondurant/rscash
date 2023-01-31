@@ -10,6 +10,6 @@ pub enum TransactionFilter {
 
 #[derive(Data, Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Page {
-	Accounts,
+	Accounts { selected_page: GUID },
 	Transactions { filter: TransactionFilter },
 }

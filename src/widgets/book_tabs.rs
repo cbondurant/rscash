@@ -1,14 +1,18 @@
 use druid::{
 	widget::{
-		Checkbox, CrossAxisAlignment, Either, Flex, Label, List, Padding, Scroll, TabInfo,
-		TabsPolicy,
+		Checkbox, Controller, CrossAxisAlignment, Either, Flex, Label, List, Padding, Scroll,
+		TabInfo, Tabs, TabsPolicy,
 	},
-	Data, Env, Selector, Widget, WidgetExt,
+	Data, Env, Event, LensExt, Selector, Widget, WidgetExt,
 };
 
 use crate::{
 	gnu_data::guid::GUID,
-	rs_data::{account::Account, book::Book, page::Page},
+	rs_data::{
+		account::Account,
+		book::Book,
+		page::{Page, TransactionFilter},
+	},
 };
 
 #[derive(Data, Clone, Copy, PartialEq, Eq)]
@@ -19,11 +23,10 @@ fn account_item() -> impl Widget<Account> {
 		.with_child(
 			Flex::row()
 				.with_child(Checkbox::new("").lens(Account::children_hidden))
-				.with_child(Label::new(|data: &Account, _env: &Env| {
-					data.name.to_string()
-				}))
-				.on_click(|ctx, data, env| {
-					ctx.submit_command(Selector::new("OpenAccount").with(data.id))
+				.with_child(
+					Label::new(|data: &Account, _env: &Env| data.name.to_string()).on_click(
+						|ctx, data, _env| {
+							ctx.submit_command(Selector::new("OpenAccount").with(data.id))
 						},
 					),
 				),
@@ -36,7 +39,6 @@ fn account_item() -> impl Widget<Account> {
 				.lens(Account::children),
 		))
 		.cross_axis_alignment(CrossAxisAlignment::Start)
-		.expand_width()
 }
 
 impl TabsPolicy for BookTabPolicy {
@@ -56,7 +58,9 @@ impl TabsPolicy for BookTabPolicy {
 
 	fn tabs(&self, data: &Self::Input) -> Vec<Self::Key> {
 		let mut pages = Vec::new();
-		pages.push(Page::Accounts);
+		pages.push(Page::Accounts {
+			selected_page: data.root_account.id,
+		});
 		for page in data.pages.iter() {
 			pages.push(page.clone())
 		}
@@ -65,7 +69,7 @@ impl TabsPolicy for BookTabPolicy {
 
 	fn tab_info(&self, key: Self::Key, data: &Self::Input) -> druid::widget::TabInfo<Self::Input> {
 		match key {
-			Page::Accounts => TabInfo::new("Accounts", false),
+			Page::Accounts { selected_page: _ } => TabInfo::new("Accounts", false),
 			Page::Transactions { filter } => match filter {
 				crate::rs_data::page::TransactionFilter::Account(account) => {
 					TabInfo::new(data.get_account_name_path(&account), true)
@@ -76,11 +80,11 @@ impl TabsPolicy for BookTabPolicy {
 
 	fn tab_body(&self, key: Self::Key, data: &Self::Input) -> Self::BodyWidget {
 		match key {
-			Page::Accounts { selected_page: _ } => {
-				Scroll::new(account_item().lens(Book::root_account))
-					.expand_width()
-					.boxed()
-			}
+			Page::Accounts { selected_page: _ } => Scroll::new(
+				List::new(|| account_item()).lens(Book::root_account.then(Account::children)),
+			)
+			.expand_width()
+			.boxed(),
 			Page::Transactions { filter } => Flex::row().boxed(),
 		}
 	}
@@ -92,5 +96,29 @@ impl TabsPolicy for BookTabPolicy {
 		_data: &Self::Input,
 	) -> Self::LabelWidget {
 		Label::new(info.name)
+	}
+}
+
+pub struct TabsController;
+
+impl Controller<Book, Tabs<BookTabPolicy>> for TabsController {
+	fn event(
+		&mut self,
+		child: &mut Tabs<BookTabPolicy>,
+		ctx: &mut druid::EventCtx,
+		event: &druid::Event,
+		data: &mut Book,
+		env: &druid::Env,
+	) {
+		match event {
+			Event::Command(command) => match command.get(Selector::<GUID>::new("OpenAccount")) {
+				Some(guid) => data.pages.push_back(Page::Transactions {
+					filter: TransactionFilter::Account(*guid),
+				}),
+				None => (),
+			},
+			_ => (),
+		}
+		child.event(ctx, event, data, env)
 	}
 }
