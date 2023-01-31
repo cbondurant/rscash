@@ -38,9 +38,7 @@ impl Controller<Book, Tabs<BookTabPolicy>> for TabsController {
 }
 
 fn build_app() -> impl Widget<Book> {
-	Tabs::for_policy(BookTabPolicy)
-		.controller(TabsController)
-		.expand_width()
+	Tabs::for_policy(BookTabPolicy).controller(TabsController)
 }
 
 fn main() {

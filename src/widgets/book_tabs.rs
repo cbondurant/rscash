@@ -24,7 +24,9 @@ fn account_item() -> impl Widget<Account> {
 				}))
 				.on_click(|ctx, data, env| {
 					ctx.submit_command(Selector::new("OpenAccount").with(data.id))
-				}),
+						},
+					),
+				),
 		)
 		.with_child(Either::new(
 			|data, _env| data.children_hidden,
@@ -74,7 +76,11 @@ impl TabsPolicy for BookTabPolicy {
 
 	fn tab_body(&self, key: Self::Key, data: &Self::Input) -> Self::BodyWidget {
 		match key {
-			Page::Accounts => Scroll::new(account_item().lens(Book::root_account)).boxed(),
+			Page::Accounts { selected_page: _ } => {
+				Scroll::new(account_item().lens(Book::root_account))
+					.expand_width()
+					.boxed()
+			}
 			Page::Transactions { filter } => Flex::row().boxed(),
 		}
 	}
