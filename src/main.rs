@@ -1,4 +1,7 @@
-use druid::{widget::Tabs, AppLauncher, Widget, WidgetExt, WindowDesc};
+use druid::{
+	widget::{Tabs, TabsTransition},
+	AppLauncher, Widget, WidgetExt, WindowDesc,
+};
 use gnu_data::gnc_v2::GCNv2;
 use libflate::gzip::Decoder;
 use rs_data::book::Book;
@@ -9,7 +12,9 @@ mod rs_data;
 mod widgets;
 
 fn build_app() -> impl Widget<Book> {
-	Tabs::for_policy(BookTabPolicy).controller(TabsController)
+	Tabs::for_policy(BookTabPolicy)
+		.with_transition(TabsTransition::Instant)
+		.controller(TabsController)
 }
 
 fn main() {
