@@ -1,9 +1,12 @@
 use druid::{
+	im::Vector,
+	lens::LensExt,
+	lens::Map,
 	widget::{
 		Checkbox, Controller, CrossAxisAlignment, Either, Flex, Label, List, Padding, Scroll,
 		TabInfo, Tabs, TabsPolicy,
 	},
-	Data, Env, Event, LensExt, Selector, Widget, WidgetExt,
+	Data, Env, Event, Selector, Widget, WidgetExt,
 };
 
 use crate::{
@@ -12,8 +15,11 @@ use crate::{
 		account::Account,
 		book::Book,
 		page::{Page, TransactionFilter},
+		transaction::Transaction,
 	},
 };
+
+use super::transactions::TransactionWidget;
 
 #[derive(Data, Clone, Copy, PartialEq, Eq)]
 pub struct BookTabPolicy;
@@ -70,7 +76,7 @@ impl TabsPolicy for BookTabPolicy {
 	fn tab_info(&self, key: Self::Key, data: &Self::Input) -> druid::widget::TabInfo<Self::Input> {
 		match key {
 			Page::Accounts { selected_page: _ } => TabInfo::new("Accounts", false),
-			Page::Transactions { filter } => match filter {
+			Page::Transactions(filter) => match filter {
 				crate::rs_data::page::TransactionFilter::Account(account) => {
 					TabInfo::new(data.get_account_name_path(&account), true)
 				}
@@ -85,7 +91,21 @@ impl TabsPolicy for BookTabPolicy {
 			)
 			.expand_width()
 			.boxed(),
-			Page::Transactions { filter } => Flex::row().boxed(),
+			Page::Transactions(filter) => Flex::row()
+				.with_child(List::new(|| {
+					Label::new(|disc: &Transaction, _env: &Env| disc.description.clone())
+				}))
+				.lens(Book::transactions.map(
+					move |transaction| {
+						transaction
+							.iter()
+							.cloned()
+							//.filter(|transaction| filter.transaction_filtered(transaction))
+							.collect()
+					},
+					|transaction, second: Vector<Transaction>| *transaction = second.clone(),
+				))
+				.boxed(),
 		}
 	}
 
@@ -112,9 +132,9 @@ impl Controller<Book, Tabs<BookTabPolicy>> for TabsController {
 	) {
 		match event {
 			Event::Command(command) => match command.get(Selector::<GUID>::new("OpenAccount")) {
-				Some(guid) => data.pages.push_back(Page::Transactions {
-					filter: TransactionFilter::Account(*guid),
-				}),
+				Some(guid) => data
+					.pages
+					.push_back(Page::Transactions(TransactionFilter::Account(*guid))),
 				None => (),
 			},
 			_ => (),

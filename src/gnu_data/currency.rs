@@ -8,4 +8,4 @@ pub struct Currency {
 }
 
 #[derive(Debug, Deserialize, Serialize, Data, Clone)]
-pub struct Quantity(String);
+pub struct Quantity(pub String);

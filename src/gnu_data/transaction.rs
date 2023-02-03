@@ -6,7 +6,7 @@ use super::{commodity::Commodity, date::Date, guid::GUID, split::Split};
 
 #[derive(Debug, Deserialize, Serialize, Data, Clone)]
 pub struct Splits {
-	split: Vector<Split>,
+	pub split: Vector<Split>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Data, Clone)]

@@ -93,12 +93,17 @@ impl From<GnuBook> for Book {
 				.push_back(child.2);
 		}
 
+		let mut transactions = Vector::new();
+		for transaction in value.transactions.iter() {
+			transactions.push_back(transaction.clone().into());
+		}
+
 		Book {
 			id: value.id,
 			root_account: path_account_list.pop().unwrap().2,
 			account_paths: paths,
 			pages: Vector::new(),
-			transactions: Vector::new(),
+			transactions,
 		}
 	}
 }

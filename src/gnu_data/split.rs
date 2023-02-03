@@ -17,12 +17,12 @@ pub enum SplitState {
 
 #[derive(Debug, Deserialize, Serialize, Data, Clone)]
 pub struct Split {
-	id: GUID,
+	pub id: GUID,
 	#[serde(rename = "reconciled-state")]
-	state: SplitState,
+	pub state: SplitState,
 	#[serde(rename = "account")]
-	account_id: GUID,
-	value: Quantity,
+	pub account_id: GUID,
+	pub value: Quantity,
 	#[serde(rename = "reconcile-date")]
-	reconcile_date: Option<Date>,
+	pub reconcile_date: Option<Date>,
 }

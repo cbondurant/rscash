@@ -33,6 +33,8 @@ fn main() {
 
 	let new_book: rs_data::book::Book = deserialized.books.remove(0).into();
 
+	println!("{:#?}", new_book.transactions);
+
 	let main_win = WindowDesc::new(build_app());
 
 	AppLauncher::with_window(main_win)
