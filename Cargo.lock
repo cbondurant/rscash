@@ -328,6 +328,7 @@ version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7d0e6d6899521e12c7edece999412a8f9afcbcddae822bd861651e3880abfec9"
 dependencies = [
+ "chrono",
  "console_error_panic_hook",
  "druid-derive",
  "druid-shell",

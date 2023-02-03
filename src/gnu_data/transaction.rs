@@ -11,12 +11,12 @@ pub struct Splits {
 
 #[derive(Debug, Deserialize, Serialize, Data, Clone)]
 pub struct Transaction {
-	id: GUID,
-	currency: Commodity,
+	pub id: GUID,
+	pub currency: Commodity,
 	#[serde(rename = "date-posted")]
-	date_posted: Date,
+	pub date_posted: Date,
 	#[serde(rename = "date-entered")]
-	date_entered: Date,
-	description: String,
-	splits: Splits,
+	pub date_entered: Date,
+	pub description: String,
+	pub splits: Splits,
 }

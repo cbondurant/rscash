@@ -4,7 +4,7 @@ use druid::{
 };
 use serde::{Deserialize, Serialize};
 
-use super::{account::Account, page::Page};
+use super::{account::Account, page::Page, transaction::Transaction};
 use crate::gnu_data::{book::Book as GnuBook, guid::GUID};
 
 #[derive(Debug, Deserialize, Serialize, Clone, Data, Lens)]
@@ -12,6 +12,7 @@ pub struct Book {
 	pub id: GUID,
 	pub root_account: Account,
 	pub account_paths: HashMap<GUID, Vector<GUID>>,
+	pub transactions: Vector<Transaction>,
 	pub pages: Vector<Page>,
 }
 
@@ -97,6 +98,7 @@ impl From<GnuBook> for Book {
 			root_account: path_account_list.pop().unwrap().2,
 			account_paths: paths,
 			pages: Vector::new(),
+			transactions: Vector::new(),
 		}
 	}
 }
